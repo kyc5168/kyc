@@ -231,13 +231,18 @@
                 <button onclick="closeQRCodeModal()" class="absolute top-3 right-4 text-xl font-black text-[#2d241e] hover:opacity-70">✕</button>
                 <div class="text-4xl floating-deco">📱</div>
                 <h3 class="text-xl sm:text-2xl font-black text-[#2d241e]">掃描 QR Code 輕鬆玩！</h3>
-                <p class="text-xs text-[#6b5847] font-bold">使用手機或平板掃描下方條碼即可開啟遊戲</p>
+                <p class="text-xs text-[#6b5847] font-bold">使用手機或平板掃描下方條碼或複製連結即可開啟遊戲</p>
 
-                <div class="p-4 bg-white rounded-xl border-2 border-[#2d241e] flex justify-center items-center my-2 shadow-inner">
-                    <div id="qrcode"></div>
+                <div class="p-4 bg-white rounded-xl border-2 border-[#2d241e] flex justify-center items-center my-2 shadow-inner min-h-[200px] w-[200px]">
+                    <div id="qrcode" class="flex justify-center items-center"></div>
                 </div>
 
-                <p class="text-[11px] text-[#8e44ad] font-bold break-all px-2" id="qrUrlText"></p>
+                <div class="w-full flex items-center gap-2 bg-[#f0e3ce] p-2 rounded-xl border-2 border-[#2d241e]">
+                    <p class="text-[10px] text-[#2d241e] font-bold truncate flex-1 text-left px-1" id="qrUrlText"></p>
+                    <button onclick="copyGameUrl()" class="btn-hand bg-[#3498db] hover:bg-[#2980b9] text-white text-xs font-black px-2.5 py-1 rounded-lg shrink-0">
+                        📋 複製
+                    </button>
+                </div>
 
                 <button onclick="closeQRCodeModal()" class="btn-hand bg-[#e67e22] hover:bg-[#d35400] text-white font-black px-6 py-2 rounded-xl w-full text-sm cursor-pointer mt-1">
                     關閉
@@ -722,23 +727,66 @@
             const qrContainer = document.getElementById('qrcode');
             const qrUrlText = document.getElementById('qrUrlText');
             
-            const currentUrl = window.location.href;
+            let currentUrl = window.location.href;
+            
+            // 如果網址過長（超過 800 字元），進行安全性處理避免 QRCode.js 產生溢位空白
+            if (currentUrl.length > 800) {
+                // 如果含有 data:text/html 或長 query，擷取有效前段或提示
+                if (currentUrl.startsWith('data:')) {
+                    currentUrl = window.location.origin || 'https://localhost';
+                }
+            }
+
             qrUrlText.innerText = currentUrl;
 
             // 清空舊的 QR Code
             qrContainer.innerHTML = '';
 
-            // 生成新的 QR Code
-            qrcodeInstance = new QRCode(qrContainer, {
-                text: currentUrl,
-                width: 180,
-                height: 180,
-                colorDark : "#2d241e",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
+            try {
+                // 使用 QRCode 產生器，調降容錯率提升長字串相容度
+                qrcodeInstance = new QRCode(qrContainer, {
+                    text: currentUrl,
+                    width: 170,
+                    height: 170,
+                    colorDark : "#2d241e",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+            } catch (err) {
+                console.error("QRCode generation error:", err);
+                qrContainer.innerHTML = '<span class="text-xs text-red-600 font-bold p-2">連結過長無法生成條碼<br>請點選上方【複製】按鈕分享連結</span>';
+            }
 
             qrModal.classList.remove('hidden');
+        }
+
+        function copyGameUrl() {
+            const currentUrl = window.location.href;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(currentUrl).then(() => {
+                    showToast("📋 遊戲網址已複製到剪貼簿！", false);
+                }).catch(() => {
+                    fallbackCopy(currentUrl);
+                });
+            } else {
+                fallbackCopy(currentUrl);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("📋 遊戲網址已複製到剪貼簿！", false);
+            } catch (err) {
+                showToast("❌ 複製失敗，請手動複製連結", true);
+            }
+            document.body.removeChild(textarea);
         }
 
         function closeQRCodeModal() {
