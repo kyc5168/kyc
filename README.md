@@ -6,6 +6,7 @@
     <title>生物呼吸器官救援大冒險</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             font-family: 'Noto Sans TC', 'Fredoka One', sans-serif;
@@ -92,6 +93,9 @@
                 <div class="text-[10px] sm:text-xs text-[#6b5847] font-bold">救援成功</div>
                 <div id="hudRescued" class="text-lg sm:text-2xl font-black text-[#2b8a3e]">0 / 5</div>
             </div>
+            <button onclick="showQRCodeModal()" title="分享 QR Code" class="btn-hand bg-[#e9ecef] hover:bg-[#dee2e6] text-[#2d241e] p-2 rounded-xl text-lg cursor-pointer">
+                📱
+            </button>
             <button onclick="toggleSound()" id="btnAudio" class="btn-hand bg-[#e9ecef] hover:bg-[#dee2e6] text-[#2d241e] p-2 rounded-xl text-lg cursor-pointer">
                 🔊
             </button>
@@ -211,8 +215,32 @@
                     </div>
                 </div>
 
-                <button onclick="restartGame()" class="btn-hand bg-[#e67e22] hover:bg-[#d35400] text-white font-black px-6 py-3 rounded-xl w-full text-base cursor-pointer">
-                    🔄 再次進行救援挑戰
+                <div class="flex gap-2 w-full">
+                    <button onclick="showQRCodeModal()" class="btn-hand bg-[#3498db] hover:bg-[#2980b9] text-white font-black px-4 py-3 rounded-xl w-1/2 text-sm sm:text-base cursor-pointer">
+                        📱 分享 QR Code
+                    </button>
+                    <button onclick="restartGame()" class="btn-hand bg-[#e67e22] hover:bg-[#d35400] text-white font-black px-4 py-3 rounded-xl w-1/2 text-sm sm:text-base cursor-pointer">
+                        🔄 再次救援
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="qrModal" class="fixed inset-0 bg-[#2d241e]/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+            <div class="paper-card max-w-sm w-full p-6 text-center flex flex-col items-center gap-4 relative">
+                <button onclick="closeQRCodeModal()" class="absolute top-3 right-4 text-xl font-black text-[#2d241e] hover:opacity-70">✕</button>
+                <div class="text-4xl floating-deco">📱</div>
+                <h3 class="text-xl sm:text-2xl font-black text-[#2d241e]">掃描 QR Code 輕鬆玩！</h3>
+                <p class="text-xs text-[#6b5847] font-bold">使用手機或平板掃描下方條碼即可開啟遊戲</p>
+
+                <div class="p-4 bg-white rounded-xl border-2 border-[#2d241e] flex justify-center items-center my-2 shadow-inner">
+                    <div id="qrcode"></div>
+                </div>
+
+                <p class="text-[11px] text-[#8e44ad] font-bold break-all px-2" id="qrUrlText"></p>
+
+                <button onclick="closeQRCodeModal()" class="btn-hand bg-[#e67e22] hover:bg-[#d35400] text-white font-black px-6 py-2 rounded-xl w-full text-sm cursor-pointer mt-1">
+                    關閉
                 </button>
             </div>
         </div>
@@ -684,6 +712,37 @@
         function restartGame() {
             document.getElementById('resultModal').classList.add('hidden');
             startGame();
+        }
+
+        let qrcodeInstance = null;
+
+        function showQRCodeModal() {
+            getAudioContext();
+            const qrModal = document.getElementById('qrModal');
+            const qrContainer = document.getElementById('qrcode');
+            const qrUrlText = document.getElementById('qrUrlText');
+            
+            const currentUrl = window.location.href;
+            qrUrlText.innerText = currentUrl;
+
+            // 清空舊的 QR Code
+            qrContainer.innerHTML = '';
+
+            // 生成新的 QR Code
+            qrcodeInstance = new QRCode(qrContainer, {
+                text: currentUrl,
+                width: 180,
+                height: 180,
+                colorDark : "#2d241e",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+            qrModal.classList.remove('hidden');
+        }
+
+        function closeQRCodeModal() {
+            document.getElementById('qrModal').classList.add('hidden');
         }
     </script>
 </body>
