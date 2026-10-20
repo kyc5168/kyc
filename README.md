@@ -330,6 +330,116 @@
             margin: 5px;
         }
 
+        .url-guide-container {
+            margin-top: 25px;
+            padding: 20px 15px;
+            background: #fdf8eb;
+            border: 3.5px solid var(--ink-black);
+            border-radius: 20px;
+            box-shadow: 4px 5px 0px var(--ink-black);
+            text-align: left;
+        }
+
+        .url-guide-title {
+            font-size: 1.3em;
+            font-weight: 900;
+            color: var(--sun-red);
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .url-steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .step-card {
+            background: #fff;
+            border: 3px solid var(--ink-black);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 3px 3px 0px var(--ink-black);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .step-badge {
+            position: absolute;
+            top: -12px;
+            left: 12px;
+            background: var(--sun-red);
+            color: #fff;
+            font-weight: 900;
+            font-size: 13px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            border: 2px solid var(--ink-black);
+        }
+
+        .step-icon {
+            font-size: 38px;
+            margin: 10px 0 5px 0;
+            filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.15));
+        }
+
+        .step-title {
+            font-weight: 900;
+            font-size: 1.05em;
+            color: var(--ink-black);
+            margin-bottom: 5px;
+        }
+
+        .step-desc {
+            font-size: 0.88em;
+            color: #555;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+
+        .url-result-box {
+            background: var(--card-bg);
+            border: 3px dashed var(--river-teal);
+            border-radius: 15px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .url-preview-badge {
+            background: var(--river-teal);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 900;
+            font-size: 14px;
+            border: 2px solid var(--ink-black);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .url-preview-text {
+            font-family: monospace;
+            font-weight: bold;
+            color: #d95e38;
+            font-size: 15px;
+            word-break: break-all;
+            background: #fff;
+            padding: 8px 14px;
+            border-radius: 10px;
+            border: 2px solid var(--ink-black);
+            flex-grow: 1;
+        }
+
         #qrcode-container {
             margin-top: 15px;
             display: flex;
@@ -475,8 +585,44 @@
         <button onclick="startGame()">🚀 啟程！救援任務</button>
 
         <div class="qr-section">
-            <h3 style="margin-top: 0;">📱 平板掃描與遊戲分享區</h3>
-            <p style="font-size: 14px; color: #555;">如果已上傳至 GitHub Pages，請貼上公開網址生成 QR Code：</p>
+            <h3 style="margin-top: 0;">🌐 獲取你的專屬網址與 QR Code 說明</h3>
+            
+            <div class="url-guide-container">
+                <div class="url-guide-title">💡 為什麼上傳到 GitHub 就會拿到專屬網址？</div>
+                <p style="font-size: 0.95em; line-height: 1.6; font-weight: 700; color: #444; margin-bottom: 20px; text-align: left;">
+                    <b>GitHub Pages</b> 是 GitHub 提供的一項免費網頁託管服務。當你建立名為 <code style="background:#e0d3be; padding:2px 6px; border-radius:4px;">index.html</code> 的檔案並發布，GitHub 伺服器會自動編譯你的程式碼，並為你分配一個獨一無二的全網公開網址：
+                </p>
+                
+                <div class="url-steps-grid">
+                    <div class="step-card">
+                        <span class="step-badge">1. 帳號專屬</span>
+                        <div class="step-icon">👤</div>
+                        <div class="step-title">個人主網域</div>
+                        <div class="step-desc">你的 GitHub 帳號名稱（如 <b>username</b>）會成為專屬子網域：<br><code style="color:var(--sun-red);">username.github.io</code></div>
+                    </div>
+
+                    <div class="step-card">
+                        <span class="step-badge">2. 專案路徑</span>
+                        <div class="step-icon">📁</div>
+                        <div class="step-title">儲存庫路徑</div>
+                        <div class="step-desc">你的專案名稱（如 <b>animal-rescue</b>）會成為網址後段的路徑：<br><code style="color:var(--river-teal);">/animal-rescue/</code></div>
+                    </div>
+
+                    <div class="step-card">
+                        <span class="step-badge">3. 自動索引</span>
+                        <div class="step-icon">📄</div>
+                        <div class="step-title">首頁 index.html</div>
+                        <div class="step-desc">GitHub 會自動讀取並載入你的 <code style="background:#e0d3be; padding:2px 6px; border-radius:4px;">index.html</code> 網頁，無需手動輸入檔名！</div>
+                    </div>
+                </div>
+
+                <div class="url-result-box">
+                    <div class="url-preview-badge">🔗 組合出來的專屬網址</div>
+                    <div class="url-preview-text">https://<span style="color:#d95e38;">你的帳號</span>.github.io/<span style="color:#68b0ab;">專案名稱</span>/</div>
+                </div>
+            </div>
+
+            <p style="font-size: 14px; color: #555; margin-top: 20px;">請貼上發布後的專屬網址以生成對應的 QR Code：</p>
             <input type="text" id="urlInput" placeholder="https://你的帳號.github.io/專案名稱/">
             <br>
             <div class="share-btn-group">
@@ -579,10 +725,10 @@
         '鰓': { emoji: '🫧', color: '#778beb' },
         '氣管': { emoji: '🌿', color: '#78e08f' }
     };
-    const organTypes = Object.keys(organInfo);
     
     let collectedOrgans = [];
     let selectedAnimals = [];
+    let requiredOrgansPool = []; // 儲存本局 5 隻動物嚴格需要的器官清單
     let activeAnimalCard = null;
     let activeOrganCard = null;
     let pairedCount = 0;
@@ -700,6 +846,13 @@
         isPhase1Running = true;
         document.getElementById('inventory').innerText = `🎒 裝備包：0 / 5`;
         
+        // 1. 隨機選出本局 5 隻救援動物
+        let shuffledAnimals = [...allAnimals].sort(() => 0.5 - Math.random());
+        selectedAnimals = shuffledAnimals.slice(0, 5);
+        
+        // 2. 建立精確的器官清單池（這 5 個器官即為這 5 隻動物的唯一解）
+        requiredOrgansPool = selectedAnimals.map(a => a.organ);
+        
         const appWidth = document.getElementById('app').clientWidth;
         canvas.width = Math.min(650, appWidth - 40);
 
@@ -709,7 +862,41 @@
 
     function spawnItem() {
         if (!isPhase1Running) return;
-        const type = organTypes[Math.floor(Math.random() * organTypes.length)];
+        
+        // 限制畫面上最多同時存在 4 個裝備
+        if (items.length < 4 && requiredOrgansPool.length > 0) {
+            // 只從「尚未被收集」的所需器官池中挑選掉落項目
+            const randomIndex = Math.floor(Math.random() * requiredOrgansPool.length);
+            const type = requiredOrgansPool[randomIndex];
+
+            items.push({
+                type: type,
+                x: Math.random() * (canvas.width - 90) + 45,
+                y: -50,
+                speed: 1.0 + Math.random() * 1.3,
+                radius: 36,
+                wobbleOffset: Math.random() * Math.PI * 2
+            });
+        }
+        
+        setTimeout(spawnItem, 1000);
+    }
+
+    function spawnItem() {
+        if (!isPhase1Running) return;
+        
+        // 從尚未掉落完畢的器官池或隨機需要的器官中選擇，確保掉落的必定是動物所需的器官
+        let type;
+        if (requiredOrgansPool.length > 0) {
+            // 優先從剩餘需要的器官中隨機挑選一個
+            const randomIndex = Math.floor(Math.random() * requiredOrgansPool.length);
+            type = requiredOrgansPool[randomIndex];
+        } else {
+            // 若池子取完則從本局 5 隻動物需要的器官類型中隨機挑選
+            const availableTypes = [...new Set(selectedAnimals.map(a => a.organ))];
+            type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+        }
+
         items.push({
             type: type,
             x: Math.random() * (canvas.width - 90) + 45,
@@ -792,9 +979,21 @@
             let dist = Math.sqrt(Math.pow(clickX - currentX, 2) + Math.pow(clickY - item.y, 2));
             
             if (dist <= item.radius + 18) { 
+                // 1. 放入已收集裝備
                 collectedOrgans.push(item.type);
+                
+                // 2. 從「待收集器官池」精確移除一個對應種類
+                const poolIndex = requiredOrgansPool.indexOf(item.type);
+                if (poolIndex !== -1) {
+                    requiredOrgansPool.splice(poolIndex, 1);
+                }
+
+                // 3. 移除被點擊的泡泡
                 items.splice(i, 1);
                 
+                // 4. 清理畫面上已經不需要的該類器官（防止玩家重複點選多餘的同類器官）
+                items = items.filter(it => requiredOrgansPool.includes(it.type));
+
                 document.getElementById('inventory').innerText = `🎒 裝備包：${collectedOrgans.length} / 5`;
                 
                 if (collectedOrgans.length >= 5) {
@@ -816,14 +1015,14 @@
         showScreen('screen-phase2');
         pairedCount = 0;
         
-        let shuffledAnimals = [...allAnimals].sort(() => 0.5 - Math.random());
-        selectedAnimals = shuffledAnimals.slice(0, 5);
-        
         const animalContainer = document.getElementById('animal-container');
         const organContainer = document.getElementById('organ-container');
         animalContainer.innerHTML = '';
         organContainer.innerHTML = '';
         
+        // 打亂收集到的器官順序，增加考驗度但保證數量與種類完全對應
+        let shuffledCollectedOrgans = [...collectedOrgans].sort(() => 0.5 - Math.random());
+
         selectedAnimals.forEach((animal) => {
             let div = document.createElement('div');
             div.className = 'card';
@@ -834,7 +1033,7 @@
             animalContainer.appendChild(div);
         });
         
-        collectedOrgans.forEach((organ) => {
+        shuffledCollectedOrgans.forEach((organ) => {
             let div = document.createElement('div');
             div.className = 'card';
             div.style.backgroundColor = organInfo[organ].color;
