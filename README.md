@@ -29,9 +29,14 @@
         }
 
         .btn-hand {
-            border: 3px solid #2d241e;
+            border: 3.5px solid #2d241e;
             box-shadow: 4px 4px 0px #2d241e;
             transition: all 0.15s ease;
+        }
+
+        .btn-hand:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0px #2d241e;
         }
 
         .btn-hand:active {
@@ -67,730 +72,716 @@
             0% { transform: scale(1.02); box-shadow: 0 0 0 4px #e67e22; }
             100% { transform: scale(1.06); box-shadow: 0 0 0 8px rgba(230, 126, 34, 0.4); }
         }
+
+        .habitat-card {
+            border: 3.5px solid #2d241e;
+            box-shadow: 5px 5px 0px #2d241e;
+            border-radius: 18px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .habitat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 7px 7px 0px #2d241e;
+        }
+
+        .modal-bg {
+            background-color: rgba(45, 36, 30, 0.75);
+            backdrop-filter: blur(4px);
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between items-center p-3 sm:p-5 relative">
+<body class="min-h-screen flex flex-col items-center p-3 md:p-6">
 
-    <div class="fixed top-3 left-4 text-4xl sm:text-5xl floating-deco pointer-events-none z-0">☀️</div>
-    <div class="fixed top-12 right-6 text-3xl sm:text-4xl floating-deco pointer-events-none z-0" style="animation-delay: 1.5s;">🦋</div>
-
-    <!-- Header Controls & HUD -->
-    <header class="w-full max-w-4xl flex justify-between items-center paper-card px-4 sm:px-6 py-3 z-10 mb-4 relative">
-        <div class="flex items-center gap-3">
-            <span class="text-3xl sm:text-4xl">🫁</span>
+    <!-- 頂部標題與工具欄 -->
+    <header class="w-full max-w-4xl flex justify-between items-center mb-4">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl md:text-4xl">🏥</span>
             <div>
-                <h1 class="font-black text-base sm:text-xl text-[#382d21] leading-tight">生物呼吸器官救援隊</h1>
-                <p class="text-xs text-[#6b5847] font-bold">互動科學探險</p>
+                <h1 class="text-xl md:text-2xl font-black tracking-wide text-amber-900">生物呼吸器官救援隊</h1>
+                <p class="text-xs md:text-sm text-amber-800 font-bold">小學自然科學互動學習館</p>
             </div>
         </div>
-
-        <div class="flex items-center gap-4 sm:gap-6">
-            <div class="text-center">
-                <div class="text-[10px] sm:text-xs text-[#6b5847] font-bold">得分</div>
-                <div id="hudScore" class="text-lg sm:text-2xl font-black text-[#d9534f]">0</div>
-            </div>
-            <div class="text-center">
-                <div class="text-[10px] sm:text-xs text-[#6b5847] font-bold">救援成功</div>
-                <div id="hudRescued" class="text-lg sm:text-2xl font-black text-[#2b8a3e]">0 / 5</div>
-            </div>
-            <button onclick="showQRCodeModal()" title="分享 QR Code" class="btn-hand bg-[#e9ecef] hover:bg-[#dee2e6] text-[#2d241e] p-2 rounded-xl text-lg cursor-pointer">
-                📱
+        
+        <div class="flex items-center space-x-2">
+            <button onclick="openQRModal()" class="btn-hand bg-amber-200 hover:bg-amber-300 px-3 py-2 rounded-xl text-sm font-bold flex items-center gap-1">
+                📱 <span>QR Code</span>
             </button>
-            <button onclick="toggleSound()" id="btnAudio" class="btn-hand bg-[#e9ecef] hover:bg-[#dee2e6] text-[#2d241e] p-2 rounded-xl text-lg cursor-pointer">
-                🔊
+            <button onclick="restartGame()" class="btn-hand bg-orange-400 hover:bg-orange-500 text-white px-3 py-2 rounded-xl text-sm font-bold">
+                🔄 重置
             </button>
         </div>
     </header>
 
-    <main class="w-full max-w-4xl flex-1 flex flex-col items-center justify-center relative z-10 my-auto">
-
-        <!-- START SCREEN -->
-        <div id="startScreen" class="paper-card w-full p-6 sm:p-8 text-center flex flex-col items-center gap-5">
-            <div class="text-6xl sm:text-7xl floating-deco">🫁</div>
-            <div>
-                <h2 class="text-2xl sm:text-4xl font-black text-[#2d241e] mb-2">
-                    生物呼吸器官救援大冒險！
-                </h2>
-                <p class="text-[#5c4a3a] text-xs sm:text-base max-w-xl font-bold leading-relaxed">
-                    生病的動物們需要正確的呼吸器官！第一階段：收集需求的器官氣泡；第二階段：為動物完成準確的器官醫療配對！
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full max-w-2xl text-left my-2">
-                <div class="bg-[#f0e3ce] p-3 rounded-xl border-2 border-[#2d241e]">
-                    <div class="text-[#c0392b] font-black text-sm sm:text-base mb-1">🫁 肺臟 (Lung)</div>
-                    <p class="text-xs text-[#4a3b2c] font-bold">哺乳類、鳥類、爬蟲類與成蛙等陸生脊椎動物。</p>
-                </div>
-                <div class="bg-[#d4edd5] p-3 rounded-xl border-2 border-[#2d241e]">
-                    <div class="text-[#27ae60] font-black text-sm sm:text-base mb-1">🌿 氣管 (Trachea)</div>
-                    <p class="text-xs text-[#4a3b2c] font-bold">昆蟲如蝴蝶、蝗蟲、蜜蜂等陸生節肢動物。</p>
-                </div>
-                <div class="bg-[#d0ebff] p-3 rounded-xl border-2 border-[#2d241e]">
-                    <div class="text-[#2980b9] font-black text-sm sm:text-base mb-1">🫧 鰓 (Gill)</div>
-                    <p class="text-xs text-[#4a3b2c] font-bold">魚類、螃蟹、蝦子等獲取水中溶解氧的生物。</p>
-                </div>
-            </div>
-
-            <button onclick="startGame()" class="btn-hand bg-[#e67e22] hover:bg-[#d35400] text-white font-black text-lg sm:text-xl px-8 py-3 rounded-2xl cursor-pointer mt-2">
-                🚀 開始救援任務
-            </button>
+    <!-- 主遊戲容器 -->
+    <main class="w-full max-w-4xl paper-card p-4 md:p-6 relative overflow-hidden min-h-[560px] flex flex-col justify-between">
+        
+        <!-- 訊息提示 Banner -->
+        <div id="toast" class="hidden absolute top-4 left-1/2 transform -translate-x-1/2 z-50 bg-amber-900 text-amber-100 font-bold px-6 py-3 rounded-full border-2 border-amber-950 shadow-lg text-center text-sm md:text-base">
+            提示訊息
         </div>
 
-        <!-- STAGE 1: BUBBLE COLLECTION STAGE -->
-        <div id="stage1Screen" class="w-full flex-col items-center justify-center hidden">
-            <div class="paper-card w-full p-4 mb-3 flex justify-between items-center">
+        <!-- 第一階段：蒐集醫療裝備 -->
+        <div id="stage-1" class="space-y-4">
+            <div class="flex justify-between items-center bg-amber-100 p-3 rounded-xl border-2 border-amber-800">
                 <div>
-                    <h3 class="text-base sm:text-lg font-black text-[#2d241e]">第一階段：蒐集裝備氣泡</h3>
-                    <p class="text-xs text-[#6b5847] font-bold">觀察各種器官氣泡，點擊收集這局救援任務需要的 5 個裝備！</p>
+                    <h2 class="font-black text-lg text-amber-900">第一階段：蒐集呼吸器裝備</h2>
+                    <p class="text-xs md:text-sm text-amber-800 font-bold">點擊空中飄浮的氣泡，蒐集救援動物所需的器官（缺幾個補幾個）！</p>
                 </div>
-                <div class="flex items-center gap-2 bg-[#f0e3ce] px-3 py-1.5 rounded-xl border-2 border-[#2d241e]">
-                    <span class="text-xs font-bold text-[#6b5847]">背包進度:</span>
-                    <div class="text-lg font-black text-[#27ae60]"><span id="collectedCount">0</span> / 5</div>
+                <div class="text-right">
+                    <span class="text-xs font-bold text-amber-800">收集進度</span>
+                    <div id="stage1-progress-text" class="text-xl font-black text-orange-600">0 / 5</div>
                 </div>
             </div>
 
-            <div class="relative w-full h-[360px] sm:h-[400px] paper-card overflow-hidden bg-[#faf3e0]">
-                <canvas id="bubbleCanvas" class="w-full h-full block"></canvas>
-
-                <!-- Inventory display bar at bottom -->
-                <div class="absolute bottom-3 left-3 right-3 bg-[#fbf6e9]/95 backdrop-blur p-2.5 sm:p-3 rounded-xl border-2 border-[#2d241e] flex items-center justify-between">
-                    <div class="text-xs sm:text-sm text-[#2d241e] font-black mr-2 flex items-center gap-1">
-                        <span>🎒</span> <span>已收集裝備:</span>
-                    </div>
-                    <div id="inventoryContainer" class="flex gap-2 overflow-x-auto">
-                        <!-- Inventory slots dynamically populated -->
-                    </div>
+            <!-- 背包面板 -->
+            <div id="inventory-panel" class="grid grid-cols-3 gap-2 bg-amber-50 p-3 rounded-xl border-2 border-amber-700 text-center">
+                <div class="bg-white p-2 rounded-lg border border-amber-300">
+                    <span class="text-xl">🫁</span> <span class="font-bold text-xs md:text-sm">肺臟:</span>
+                    <span id="count-lung" class="font-black text-orange-600">0</span>
                 </div>
+                <div class="bg-white p-2 rounded-lg border border-amber-300">
+                    <span class="text-xl">🌿</span> <span class="font-bold text-xs md:text-sm">氣管:</span>
+                    <span id="count-trachea" class="font-black text-orange-600">0</span>
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-amber-300">
+                    <span class="text-xl">🫧</span> <span class="font-bold text-xs md:text-sm">鰓:</span>
+                    <span id="count-gill" class="font-black text-orange-600">0</span>
+                </div>
+            </div>
+
+            <!-- 氣泡 Canvas 遊戲區 -->
+            <div class="relative w-full h-[340px] bg-sky-100 rounded-xl border-2 border-sky-300 overflow-hidden shadow-inner">
+                <canvas id="bubbleCanvas" class="w-full h-full cursor-pointer"></canvas>
             </div>
         </div>
 
-        <!-- STAGE 2: MATCHING STAGE -->
-        <div id="stage2Screen" class="w-full flex-col items-center justify-center hidden">
-            <div class="paper-card w-full p-4 mb-3 text-center">
-                <h3 class="text-xl sm:text-2xl font-black text-[#2d241e] mb-1">第二階段：器官醫療配對</h3>
-                <p id="stage2Instruction" class="text-xs sm:text-sm font-bold text-[#e67e22]">👇 請點擊選擇一隻待救援動物，再選取對應器官配對！</p>
-            </div>
-
-            <div class="paper-card w-full p-4 sm:p-6 space-y-5" id="matchingArea">
-                <!-- Animal Row -->
+        <!-- 第二階段：器官醫療配對 (保留原有完整玩法) -->
+        <div id="stage-2" class="hidden space-y-4">
+            <div class="bg-amber-100 p-3 rounded-xl border-2 border-amber-800 flex justify-between items-center">
                 <div>
-                    <div class="text-xs sm:text-sm font-black text-[#8e44ad] mb-2 flex items-center gap-1">
-                        <span>😿</span> <span>1. 受困動物區 (點擊選擇)</span>
-                    </div>
-                    <div id="animalContainer" class="grid grid-cols-5 gap-2 sm:gap-3">
-                        <!-- Animals rendered here -->
-                    </div>
+                    <h2 class="font-black text-lg text-amber-900">第二階段：進行器官醫療配對</h2>
+                    <p class="text-xs md:text-sm text-amber-800 font-bold">點選【生病的動物】與對應的【器官裝備】進行治療！</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs font-bold text-amber-800">剩餘未治療</span>
+                    <div id="stage2-progress-text" class="text-xl font-black text-orange-600">5 / 5</div>
+                </div>
+            </div>
+
+            <!-- 選取的器官狀態列 -->
+            <div class="grid grid-cols-2 gap-3">
+                <!-- 左側：待治療動物選單 -->
+                <div class="bg-amber-50 p-3 rounded-xl border-2 border-amber-700">
+                    <h3 class="font-black text-amber-900 text-sm mb-2 border-b border-amber-300 pb-1">🐾 待救援動物 (點擊選取)</h3>
+                    <div id="animals-container" class="space-y-2 max-h-[300px] overflow-y-auto pr-1"></div>
                 </div>
 
-                <!-- Organ Inventory Row -->
-                <div>
-                    <div class="text-xs sm:text-sm font-black text-[#2980b9] mb-2 flex items-center gap-1">
-                        <span>📦</span> <span>2. 收集到的呼吸器官 (點擊進行配對)</span>
-                    </div>
-                    <div id="organInventoryContainer" class="grid grid-cols-5 gap-2 sm:gap-3">
-                        <!-- Collected items rendered here -->
-                    </div>
+                <!-- 右側：可用器官背包 -->
+                <div class="bg-amber-50 p-3 rounded-xl border-2 border-amber-700">
+                    <h3 class="font-black text-amber-900 text-sm mb-2 border-b border-amber-300 pb-1">🧰 裝備庫存 (點擊配對)</h3>
+                    <div id="organs-container" class="space-y-2 max-h-[300px] overflow-y-auto pr-1"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Feedback Notification Toast -->
-        <div id="toastNotification" class="fixed top-20 z-50 bg-[#c0392b] text-white font-black text-sm sm:text-base px-6 py-3 rounded-2xl border-3 border-[#2d241e] shadow-lg transition-all duration-300 opacity-0 pointer-events-none transform -translate-y-4 text-center max-w-md">
-            <span id="toastText">訊息提示</span>
-        </div>
-
-        <!-- GAME OVER / SUCCESS MODAL -->
-        <div id="resultModal" class="fixed inset-0 bg-[#2d241e]/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-            <div class="paper-card max-w-md w-full p-6 sm:p-8 text-center flex flex-col items-center gap-5">
-                <div class="text-6xl floating-deco">🎉</div>
-                <h2 class="text-2xl sm:text-3xl font-black text-[#2d241e]">大獲全勝！救援成功！</h2>
-                <p class="text-[#5c4a3a] text-xs sm:text-sm font-bold leading-relaxed">
-                    太棒了！你完美辨識了所有生物的呼吸器官，成功救治了所有受困的動物！
-                </p>
-
-                <div class="bg-[#f0e3ce] w-full p-4 rounded-xl border-2 border-[#2d241e]">
-                    <div class="flex justify-between items-center text-base font-black text-[#2d241e]">
-                        <span>救援得分：</span>
-                        <span id="finalScore" class="text-2xl text-[#27ae60]">100 分</span>
-                    </div>
-                </div>
-
-                <div class="flex gap-2 w-full">
-                    <button onclick="showQRCodeModal()" class="btn-hand bg-[#3498db] hover:bg-[#2980b9] text-white font-black px-4 py-3 rounded-xl w-1/2 text-sm sm:text-base cursor-pointer">
-                        📱 分享 QR Code
-                    </button>
-                    <button onclick="restartGame()" class="btn-hand bg-[#e67e22] hover:bg-[#d35400] text-white font-black px-4 py-3 rounded-xl w-1/2 text-sm sm:text-base cursor-pointer">
-                        🔄 再次救援
-                    </button>
-                </div>
+        <!-- 第三階段：送動物回家 -->
+        <div id="stage-3" class="hidden space-y-4">
+            <div class="bg-amber-100 p-3 rounded-xl border-2 border-amber-800">
+                <h2 class="font-black text-lg text-amber-900">第三階段：送康復動物回家</h2>
+                <p class="text-xs md:text-sm text-amber-800 font-bold">先選擇下方配對好的動物，點擊正確的棲息地卡片送牠們回家！</p>
             </div>
-        </div>
 
-        <div id="qrModal" class="fixed inset-0 bg-[#2d241e]/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-            <div class="paper-card max-w-sm w-full p-6 text-center flex flex-col items-center gap-4 relative">
-                <button onclick="closeQRCodeModal()" class="absolute top-3 right-4 text-xl font-black text-[#2d241e] hover:opacity-70">✕</button>
-                <div class="text-4xl floating-deco">📱</div>
-                <h3 class="text-xl sm:text-2xl font-black text-[#2d241e]">掃描 QR Code 輕鬆玩！</h3>
-                <p class="text-xs text-[#6b5847] font-bold">使用手機或平板掃描下方條碼或複製連結即可開啟遊戲</p>
+            <!-- 配對完成待送回家的動物 -->
+            <div id="paired-animals-container" class="flex flex-wrap gap-2 justify-center p-3 bg-amber-50 rounded-xl border-2 border-amber-700 min-h-[90px] items-center">
+                <!-- 動態注入已康復動物 -->
+            </div>
 
-                <div class="p-4 bg-white rounded-xl border-2 border-[#2d241e] flex justify-center items-center my-2 shadow-inner min-h-[200px] w-[200px]">
-                    <div id="qrcode" class="flex justify-center items-center"></div>
+            <!-- 棲息地區域 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div id="habitat-ocean" onclick="placeAnimalInHabitat('水生')" class="habitat-card bg-blue-50 border-blue-400 p-4 text-center">
+                    <h3 class="text-xl font-black text-blue-900 mb-2">🌊 藍色大海 (水生環境)</h3>
+                    <p class="text-xs text-blue-700 mb-3 font-bold">適合用「鰓」或水中輔助呼吸的生物</p>
+                    <div id="ocean-residents" class="flex flex-wrap gap-2 justify-center min-h-[100px] p-2 bg-white/70 rounded-lg border border-blue-200"></div>
                 </div>
 
-                <div class="w-full flex items-center gap-2 bg-[#f0e3ce] p-2 rounded-xl border-2 border-[#2d241e]">
-                    <p class="text-[10px] text-[#2d241e] font-bold truncate flex-1 text-left px-1" id="qrUrlText"></p>
-                    <button onclick="copyGameUrl()" class="btn-hand bg-[#3498db] hover:bg-[#2980b9] text-white text-xs font-black px-2.5 py-1 rounded-lg shrink-0">
-                        📋 複製
-                    </button>
+                <div id="habitat-forest" onclick="placeAnimalInHabitat('陸生')" class="habitat-card bg-emerald-50 border-emerald-400 p-4 text-center">
+                    <h3 class="text-xl font-black text-emerald-900 mb-2">🌲 森林草地 (陸生環境)</h3>
+                    <p class="text-xs text-emerald-700 mb-3 font-bold">適合用「肺」或「氣管」呼吸的生物</p>
+                    <div id="forest-residents" class="flex flex-wrap gap-2 justify-center min-h-[100px] p-2 bg-white/70 rounded-lg border border-emerald-200"></div>
                 </div>
-
-                <button onclick="closeQRCodeModal()" class="btn-hand bg-[#e67e22] hover:bg-[#d35400] text-white font-black px-6 py-2 rounded-xl w-full text-sm cursor-pointer mt-1">
-                    關閉
-                </button>
             </div>
         </div>
 
     </main>
 
+    <!-- 勝利通關彈窗 Modal -->
+    <div id="victory-modal" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center p-4">
+        <div class="paper-card bg-amber-50 p-6 max-w-md w-full text-center space-y-4">
+            <span class="text-6xl floating-deco inline-block">🏆</span>
+            <h2 class="text-2xl font-black text-amber-900">太棒了！救援成功！</h2>
+            <p class="text-sm font-bold text-amber-800">你成功收集器官、配對醫療並把所有動物平安送回家！你是專業的【生物呼吸救援大師】！</p>
+            
+            <div class="bg-white p-3 rounded-xl border border-amber-300 text-left text-xs space-y-1 font-bold text-amber-900">
+                <p>✅ 知識小複習：</p>
+                <p>• 魚類、蝦類等水生生物主要用<b>鰓</b>抽取水中氧氣。</p>
+                <p>• 昆蟲類（如蚱蜢、蜜蜂）使用<b>氣管系統</b>氣孔呼吸。</p>
+                <p>• 陸生脊椎動物（兔子、鳥類、人類）主要使用<b>肺臟</b>呼吸。</p>
+            </div>
+
+            <div class="flex flex-col gap-2 pt-2">
+                <button onclick="openQRModal()" class="btn-hand bg-amber-300 hover:bg-amber-400 text-amber-950 py-2.5 rounded-xl font-black text-sm">
+                    📱 分享 QR Code 給同學
+                </button>
+                <button onclick="restartGame()" class="btn-hand bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-xl font-black text-sm">
+                    🎮 再玩一次
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code 彈窗 Modal -->
+    <div id="qr-modal" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center p-4">
+        <div class="paper-card bg-amber-50 p-6 max-w-sm w-full text-center space-y-4 relative">
+            <button onclick="closeQRModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 font-bold text-xl">✕</button>
+            <h3 class="text-lg font-black text-amber-900">📱 掃描 QR Code 開啟遊戲</h3>
+            
+            <div class="flex justify-center p-3 bg-white rounded-xl border border-amber-300">
+                <div id="qrcode-container" class="flex justify-center items-center min-h-[160px]"></div>
+            </div>
+
+            <p class="text-xs text-amber-800 font-bold">使用手機鏡頭掃描即可遊玩！</p>
+            
+            <div class="flex gap-2">
+                <button onclick="copyCurrentURL()" class="btn-hand w-full bg-amber-200 hover:bg-amber-300 text-amber-900 py-2 rounded-xl text-xs font-bold">
+                    📋 複製連結
+                </button>
+                <button onclick="closeQRModal()" class="btn-hand w-full bg-amber-800 text-white py-2 rounded-xl text-xs font-bold">
+                    關閉
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // --- 完整動物資料庫 ---
         const ANIMAL_DATABASE = [
-            { id: 'dog', name: '小狗', icon: '🐶', organ: 'lung' },
-            { id: 'cat', name: '小貓', icon: '🐱', organ: 'lung' },
-            { id: 'human', name: '人類', icon: '🧑', organ: 'lung' },
-            { id: 'butterfly', name: '蝴蝶', icon: '🦋', organ: 'trachea' },
-            { id: 'grasshopper', name: '蝗蟲', icon: '🦗', organ: 'trachea' },
-            { id: 'bee', name: '蜜蜂', icon: '🐝', organ: 'trachea' },
-            { id: 'shark', name: '鯊魚', icon: '🦈', organ: 'gill' },
-            { id: 'goldfish', name: '金魚', icon: '🐠', organ: 'gill' },
-            { id: 'crab', name: '螃蟹', icon: '🦀', organ: 'gill' }
+            { id: 'fish', name: '小金魚', icon: '🐠', organ: 'gill', habitat: '水生', desc: '生活在水中，需要鰓吸收水中的氧氣。' },
+            { id: 'shrimp', name: '大龍蝦', icon: '🦞', organ: 'gill', habitat: '水生', desc: '甲殼類水生動物，靠鰓進行氣體交換。' },
+            { id: 'grasshopper', name: '小蚱蜢', icon: '🦗', organ: 'trachea', habitat: '陸生', desc: '昆蟲類，體表有氣孔並連接氣管系統。' },
+            { id: 'bee', name: '小蜜蜂', icon: '🐝', organ: 'trachea', habitat: '陸生', desc: '飛行的昆蟲，使用氣管分支輸送氧氣。' },
+            { id: 'rabbit', name: '小白兔', icon: '🐰', organ: 'lung', habitat: '陸生', desc: '哺乳類動物，使用肺臟呼吸空氣。' },
+            { id: 'bird', name: '小麻雀', icon: '🐦', organ: 'lung', habitat: '陸生', desc: '鳥類，擁有高效能的肺臟與氣囊。' }
         ];
 
-        const ORGAN_META = {
-            lung: { name: '肺臟', icon: '🫁', bgColor: '#fce4ec', textColor: '#c2185b' },
-            trachea: { name: '氣管', icon: '🌿', bgColor: '#e8f5e9', textColor: '#2e7d32' },
-            gill: { name: '鰓', icon: '🫧', bgColor: '#e1f5fe', textColor: '#0288d1' }
+        const ORGAN_NAMES = {
+            lung: '肺臟 🫁',
+            trachea: '氣管 🌿',
+            gill: '鰓 🫧'
         };
 
-        const ALL_ORGAN_TYPES = ['lung', 'trachea', 'gill'];
+        // 遊戲核心狀態 variables
+        let currentStage = 1;
+        let selectedAnimals = [];
+        let collectedInventory = { lung: 0, trachea: 0, gill: 0 };
+        let requiredTotalOrgans = { lung: 0, trachea: 0, gill: 0 };
+        
+        // Stage 2 state (保持原玩法)
+        let stage2Animals = [];
+        let selectedAnimalId = null;
+        let selectedOrganType = null;
 
-        let soundEnabled = true;
-        let audioCtx = null;
+        // Stage 3 state
+        let curedAnimals = [];
+        let selectedCuredAnimalId = null;
 
-        function getAudioContext() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-            return audioCtx;
-        }
-
-        function playPopSound() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioContext();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(350, ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(750, ctx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.25, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.08);
-            } catch (e) {}
-        }
-
-        function playSuccessSound() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioContext();
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, i) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.15, ctx.currentTime + i * 0.07);
-                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.07 + 0.2);
-                    osc.connect(gain);
-                    gain.connect(ctx.destination);
-                    osc.start(ctx.currentTime + i * 0.07);
-                    osc.stop(ctx.currentTime + i * 0.07 + 0.2);
-                });
-            } catch (e) {}
-        }
-
-        function playErrorSound() {
-            if (!soundEnabled) return;
-            try {
-                const ctx = getAudioContext();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, ctx.currentTime);
-                osc.frequency.setValueAtTime(160, ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.2, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.25);
-            } catch (e) {}
-        }
-
-        function toggleSound() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('btnAudio').innerText = soundEnabled ? '🔊' : '🔇';
-        }
-
-        let currentAnimals = [];
-        let targetOrganCounts = { lung: 0, trachea: 0, gill: 0 };
-        let collectedCounts = { lung: 0, trachea: 0, gill: 0 };
-        let collectedInventory = [];
-        let score = 0;
-        let rescuedCount = 0;
-        let selectedAnimalIndex = null;
-        let selectedOrganIndex = null;
-
-        const canvas = document.getElementById('bubbleCanvas');
-        const ctx = canvas.getContext('2d');
+        // Stage 1 Canvas Bubbles
+        let canvas, ctx;
         let bubbles = [];
-        let animationFrame = null;
+        let animationFrameId = null;
+
+        // Web Audio 音效產生器
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            try {
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'pop') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.1);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'error') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(150, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                }
+            } catch (e) {
+                console.log('Audio Context muted or blocked');
+            }
+        }
+
+        window.onload = function() {
+            initCanvas();
+            restartGame();
+        };
+
+        function restartGame() {
+            currentStage = 1;
+            selectedAnimals = shuffleArray([...ANIMAL_DATABASE]).slice(0, 5); // 隨機選 5 隻
+            
+            // 計算這 5 隻動物需要的器官總量
+            requiredTotalOrgans = { lung: 0, trachea: 0, gill: 0 };
+            selectedAnimals.forEach(a => requiredTotalOrgans[a.organ]++);
+
+            collectedInventory = { lung: 0, trachea: 0, gill: 0 };
+            
+            stage2Animals = selectedAnimals.map(a => ({ ...a, isCured: false }));
+            curedAnimals = [];
+            selectedAnimalId = null;
+            selectedOrganType = null;
+            selectedCuredAnimalId = null;
+
+            document.getElementById('victory-modal').classList.add('hidden');
+            document.getElementById('ocean-residents').innerHTML = '';
+            document.getElementById('forest-residents').innerHTML = '';
+
+            updateStageVisibility();
+            updateInventoryUI();
+            initStage1Bubbles();
+        }
+
+        function updateStageVisibility() {
+            document.getElementById('stage-1').classList.toggle('hidden', currentStage !== 1);
+            document.getElementById('stage-2').classList.toggle('hidden', currentStage !== 2);
+            document.getElementById('stage-3').classList.toggle('hidden', currentStage !== 3);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.remove('hidden');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2500);
+        }
+
+        function initCanvas() {
+            canvas = document.getElementById('bubbleCanvas');
+            ctx = canvas.getContext('2d');
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+
+            canvas.addEventListener('click', handleCanvasClick);
+        }
 
         function resizeCanvas() {
-            if (canvas && canvas.parentElement) {
-                const rect = canvas.parentElement.getBoundingClientRect();
-                const dpr = window.devicePixelRatio || 1;
-                canvas.width = rect.width * dpr;
-                canvas.height = rect.height * dpr;
-                ctx.scale(dpr, dpr);
-            }
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
         }
 
-        window.addEventListener('resize', resizeCanvas);
-
-        function showToast(msg, isError = true) {
-            const toast = document.getElementById('toastNotification');
-            const toastText = document.getElementById('toastText');
-            toastText.innerText = msg;
-            toast.style.backgroundColor = isError ? '#c0392b' : '#27ae60';
-            toast.classList.remove('opacity-0', 'pointer-events-none', '-translate-y-4');
-            toast.classList.add('opacity-100', 'translate-y-2');
-
-            setTimeout(() => {
-                toast.classList.remove('opacity-100', 'translate-y-2');
-                toast.classList.add('opacity-0', 'pointer-events-none', '-translate-y-4');
-            }, 2600);
-        }
-
-        function startGame() {
-            getAudioContext();
-            score = 0;
-            rescuedCount = 0;
-            collectedInventory = [];
-            selectedAnimalIndex = null;
-            selectedOrganIndex = null;
-
-            targetOrganCounts = { lung: 0, trachea: 0, gill: 0 };
-            collectedCounts = { lung: 0, trachea: 0, gill: 0 };
-
-            document.getElementById('hudScore').innerText = score;
-            document.getElementById('hudRescued').innerText = '0 / 5';
-
-            // Pick 5 random animals
-            const shuffled = [...ANIMAL_DATABASE].sort(() => 0.5 - Math.random());
-            currentAnimals = shuffled.slice(0, 5).map(a => ({ ...a, rescued: false }));
-
-            // Calculate exact target counts needed for these 5 animals
-            currentAnimals.forEach(a => {
-                targetOrganCounts[a.organ] = (targetOrganCounts[a.organ] || 0) + 1;
-            });
-
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('stage2Screen').classList.add('hidden');
-            document.getElementById('resultModal').classList.add('hidden');
-            document.getElementById('stage1Screen').classList.remove('hidden');
-            document.getElementById('stage1Screen').classList.add('flex');
-
-            setTimeout(() => {
-                resizeCanvas();
-                initStage1();
-            }, 50);
-        }
-
-        function initStage1() {
-            updateInventoryUI();
+        function initStage1Bubbles() {
             bubbles = [];
+            // 畫面永遠固定呈現多樣的三種器官氣泡 (肺臟、氣管、鰓)
+            const allTypes = ['lung', 'trachea', 'gill', 'lung'];
+            
+            for (let i = 0; i < 4; i++) {
+                bubbles.push(createBubble(allTypes[i % allTypes.length]));
+            }
 
-            // Spawn 4 fixed bubbles covering all organ types continuously
-            const rect = canvas.parentElement.getBoundingClientRect();
-            const radius = 38;
-
-            // Types to spawn: Guaranteed covering lung, trachea, gill + 1 extra
-            const initialTypes = ['lung', 'trachea', 'gill', ALL_ORGAN_TYPES[Math.floor(Math.random() * 3)]];
-
-            initialTypes.forEach((type, idx) => {
-                bubbles.push({
-                    x: (rect.width / 4) * idx + rect.width / 8,
-                    y: rect.height + radius + (idx * 50),
-                    radius: radius,
-                    type: type,
-                    vx: (Math.random() - 0.5) * 1.5,
-                    vy: -(Math.random() * 0.8 + 1.2)
-                });
-            });
-
-            if (animationFrame) cancelAnimationFrame(animationFrame);
-            animateStage1();
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animateBubbles();
         }
 
-        function animateStage1() {
-            const rect = canvas.parentElement.getBoundingClientRect();
-            ctx.clearRect(0, 0, rect.width, rect.height);
+        function createBubble(type) {
+            return {
+                x: Math.random() * (canvas.width - 60) + 30,
+                y: canvas.height + Math.random() * 100 + 20,
+                radius: 28 + Math.random() * 8,
+                speed: 1.2 + Math.random() * 1.3,
+                type: type,
+                wobble: Math.random() * Math.PI * 2,
+                wobbleSpeed: 0.03 + Math.random() * 0.02
+            };
+        }
 
-            for (let i = 0; i < bubbles.length; i++) {
-                const b = bubbles[i];
-                b.x += b.vx;
-                b.y += b.vy;
+        function animateBubbles() {
+            if (currentStage !== 1) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                // Bounce walls
-                if (b.x - b.radius < 0) {
-                    b.x = b.radius;
-                    b.vx *= -1;
-                } else if (b.x + b.radius > rect.width) {
-                    b.x = rect.width - b.radius;
-                    b.vx *= -1;
+            const icons = { lung: '🫁', trachea: '🌿', gill: '🫧' };
+
+            bubbles.forEach((b) => {
+                b.y -= b.speed;
+                b.wobble += b.wobbleSpeed;
+                const currentX = b.x + Math.sin(b.wobble) * 15;
+
+                // 飄出頂部後自動重置回底部，保持流暢循環，絕不閃退或無故消失
+                if (b.y < -40) {
+                    b.y = canvas.height + 40;
+                    b.x = Math.random() * (canvas.width - 60) + 30;
                 }
 
-                // Smooth bottom recycling (loop around)
-                if (b.y + b.radius < 0) {
-                    b.y = rect.height + b.radius;
-                    b.x = Math.random() * (rect.width - b.radius * 2) + b.radius;
-                    // Rotate organ type to maintain variety
-                    const missingTypes = ALL_ORGAN_TYPES.filter(t => collectedCounts[t] < targetOrganCounts[t]);
-                    if (missingTypes.length > 0 && Math.random() < 0.6) {
-                        b.type = missingTypes[Math.floor(Math.random() * missingTypes.length)];
-                    } else {
-                        b.type = ALL_ORGAN_TYPES[Math.floor(Math.random() * ALL_ORGAN_TYPES.length)];
-                    }
-                }
-
-                // Render Bubble
-                const meta = ORGAN_META[b.type];
-                const isNeededAndMissing = collectedCounts[b.type] < targetOrganCounts[b.type];
-
-                ctx.save();
+                // 畫氣泡外框與漸層
                 ctx.beginPath();
-                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
-                ctx.fillStyle = meta.bgColor;
+                ctx.arc(currentX, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
                 ctx.fill();
-                ctx.lineWidth = 3.5;
-                ctx.strokeStyle = '#2d241e';
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = '#0284c7';
                 ctx.stroke();
 
-                // Gloss Highlight
+                // 氣泡亮光
                 ctx.beginPath();
-                ctx.arc(b.x - b.radius * 0.3, b.y - b.radius * 0.3, b.radius * 0.25, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.arc(currentX - b.radius * 0.3, b.y - b.radius * 0.3, b.radius * 0.22, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
                 ctx.fill();
 
-                // Icon & Label
-                ctx.font = '24px sans-serif';
+                // 繪製圖示
+                ctx.font = '22px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(meta.icon, b.x, b.y - 6);
+                ctx.fillText(icons[b.type], currentX, b.y);
+            });
 
-                ctx.font = '900 12px "Noto Sans TC", sans-serif';
-                ctx.fillStyle = meta.textColor;
-                ctx.fillText(meta.name, b.x, b.y + 18);
-                ctx.restore();
-            }
-
-            if (collectedInventory.length < 5) {
-                animationFrame = requestAnimationFrame(animateStage1);
-            } else {
-                setTimeout(transitionToStage2, 400);
-            }
+            animationFrameId = requestAnimationFrame(animateBubbles);
         }
 
-        function handleBubbleClick(clickX, clickY) {
-            if (collectedInventory.length >= 5) return;
+        function handleCanvasClick(e) {
+            if (currentStage !== 1) return;
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
 
             for (let i = bubbles.length - 1; i >= 0; i--) {
                 const b = bubbles[i];
-                const dist = Math.hypot(b.x - clickX, b.y - clickY);
+                const currentX = b.x + Math.sin(b.wobble) * 15;
+                const dist = Math.hypot(clickX - currentX, clickY - b.y);
 
                 if (dist < b.radius + 10) {
-                    const type = b.type;
-                    const meta = ORGAN_META[type];
-
-                    // Check if this organ is still needed in current task
-                    if (collectedCounts[type] < targetOrganCounts[type]) {
-                        playPopSound();
-                        collectedCounts[type]++;
-                        collectedInventory.push({ type: type, used: false });
-
-                        // Recycle this bubble to a new type
-                        b.y = canvas.parentElement.getBoundingClientRect().height + b.radius;
-                        b.x = Math.random() * (canvas.parentElement.getBoundingClientRect().width - b.radius * 2) + b.radius;
-                        b.type = ALL_ORGAN_TYPES[Math.floor(Math.random() * ALL_ORGAN_TYPES.length)];
-
-                        updateInventoryUI();
-                    } else {
-                        // Already full or not needed
-                        playErrorSound();
-                        if (targetOrganCounts[type] === 0) {
-                            showToast(`💡 這局救援不需要【${meta.name}】喔！請選擇其他器官！`, true);
-                        } else {
-                            showToast(`💡 【${meta.name}】已經收集足夠囉 (${collectedCounts[type]}/${targetOrganCounts[type]})！請收集其他器官！`, true);
-                        }
-                    }
+                    popBubble(i);
                     break;
                 }
             }
         }
 
-        canvas.addEventListener('pointerdown', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            handleBubbleClick(e.clientX - rect.left, e.clientY - rect.top);
-        });
+        function popBubble(index) {
+            const b = bubbles[index];
+            const needed = requiredTotalOrgans[b.type];
+            const current = collectedInventory[b.type];
+
+            if (current < needed) {
+                // 收集該器官
+                collectedInventory[b.type]++;
+                playSound('pop');
+                updateInventoryUI();
+                
+                // 重置該氣泡回底部
+                const allTypes = ['lung', 'trachea', 'gill'];
+                b.type = allTypes[Math.floor(Math.random() * allTypes.length)];
+                b.y = canvas.height + 40;
+                b.x = Math.random() * (canvas.width - 60) + 30;
+
+                checkStage1Progress();
+            } else {
+                // 該器官已經集滿
+                playSound('error');
+                showToast(`【${ORGAN_NAMES[b.type]}】已經集滿囉！請尋找其他種類的器官氣泡！`);
+            }
+        }
 
         function updateInventoryUI() {
-            document.getElementById('collectedCount').innerText = collectedInventory.length;
-            const container = document.getElementById('inventoryContainer');
-            container.innerHTML = '';
+            document.getElementById('count-lung').innerText = `${collectedInventory.lung} / ${requiredTotalOrgans.lung}`;
+            document.getElementById('count-trachea').innerText = `${collectedInventory.trachea} / ${requiredTotalOrgans.trachea}`;
+            document.getElementById('count-gill').innerText = `${collectedInventory.gill} / ${requiredTotalOrgans.gill}`;
 
-            for (let i = 0; i < 5; i++) {
-                const slot = document.createElement('div');
-                slot.className = 'w-10 h-10 sm:w-12 sm:h-12 rounded-xl border-2 border-[#2d241e] flex items-center justify-center text-lg sm:text-xl font-black transition-all';
+            const totalCollected = collectedInventory.lung + collectedInventory.trachea + collectedInventory.gill;
+            document.getElementById('stage1-progress-text').innerText = `${totalCollected} / 5`;
+        }
 
-                if (i < collectedInventory.length) {
-                    const item = collectedInventory[i];
-                    const meta = ORGAN_META[item.type];
-                    slot.style.backgroundColor = meta.bgColor;
-                    slot.style.color = meta.textColor;
-                    slot.innerHTML = meta.icon;
-                    slot.title = meta.name;
-                } else {
-                    slot.className += ' border-dashed bg-[#e9ecef] opacity-50';
-                    slot.innerHTML = `<span class="text-xs text-[#2d241e] font-bold">${i + 1}</span>`;
-                }
-                container.appendChild(slot);
+        function checkStage1Progress() {
+            const totalCollected = collectedInventory.lung + collectedInventory.trachea + collectedInventory.gill;
+            if (totalCollected >= 5) {
+                playSound('success');
+                showToast('🎉 器官裝備蒐集完成！進入第二階段：器官醫療配對！');
+                setTimeout(() => {
+                    currentStage = 2;
+                    updateStageVisibility();
+                    renderStage2();
+                }, 1200);
             }
         }
 
-        function transitionToStage2() {
-            if (animationFrame) cancelAnimationFrame(animationFrame);
-
-            document.getElementById('stage1Screen').classList.add('hidden');
-            document.getElementById('stage1Screen').classList.remove('flex');
-            document.getElementById('stage2Screen').classList.remove('hidden');
-            document.getElementById('stage2Screen').classList.add('flex');
-
-            renderStage2();
-        }
-
+        // --- 第二階段：原版配對玩法 ---
         function renderStage2() {
-            const animalContainer = document.getElementById('animalContainer');
-            animalContainer.innerHTML = '';
+            const animalsContainer = document.getElementById('animals-container');
+            const organsContainer = document.getElementById('organs-container');
+            animalsContainer.innerHTML = '';
+            organsContainer.innerHTML = '';
 
-            currentAnimals.forEach((animal, index) => {
-                const card = document.createElement('div');
-                const isSelected = selectedAnimalIndex === index;
-                const isRescued = animal.rescued;
+            let uncuredCount = stage2Animals.filter(a => !a.isCured).length;
+            document.getElementById('stage2-progress-text').innerText = `${uncuredCount} / 5`;
 
-                card.className = `animal-card paper-card p-2 sm:p-3 flex flex-col items-center justify-center cursor-pointer transition-all ${
-                    isSelected ? 'pulse-selected bg-[#ffe8cc]' : ''
-                } ${isRescued ? 'opacity-40 grayscale pointer-events-none' : 'hover:scale-105'}`;
-
-                card.innerHTML = `
-                    <div class="text-3xl sm:text-4xl mb-1">${isRescued ? '✨' : animal.icon}</div>
-                    <div class="font-black text-xs sm:text-sm text-[#2d241e]">${animal.name}</div>
-                    <div class="text-[9px] sm:text-[11px] font-bold mt-1 px-2 py-0.5 rounded-full ${isRescued ? 'bg-emerald-200 text-emerald-900' : 'bg-amber-200 text-amber-900'}">
-                        ${isRescued ? '救援成功' : '待救援'}
+            // 渲染左側動物選單
+            stage2Animals.forEach(animal => {
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-xl border-2 cursor-pointer flex items-center justify-between transition-all ${
+                    animal.isCured 
+                        ? 'bg-emerald-100 border-emerald-400 opacity-60 cursor-not-allowed' 
+                        : selectedAnimalId === animal.id 
+                            ? 'bg-amber-200 border-orange-500 pulse-selected' 
+                            : 'bg-white border-amber-300 hover:border-amber-500'
+                }`;
+                div.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-2xl">${animal.icon}</span>
+                        <div>
+                            <div class="font-bold text-sm text-amber-950">${animal.name}</div>
+                            <div class="text-xs text-amber-800">${animal.isCured ? '✅ 已配對治療' : '😷 呼吸困難中'}</div>
+                        </div>
                     </div>
                 `;
-
-                if (!isRescued) {
-                    card.onclick = () => selectAnimal(index);
+                if (!animal.isCured) {
+                    div.onclick = () => selectAnimal(animal.id);
                 }
-                animalContainer.appendChild(card);
+                animalsContainer.appendChild(div);
             });
 
-            const organContainer = document.getElementById('organInventoryContainer');
-            organContainer.innerHTML = '';
-
-            collectedInventory.forEach((item, index) => {
-                const card = document.createElement('div');
-                const meta = ORGAN_META[item.type];
-                const isUsed = item.used;
-                const isSelected = selectedOrganIndex === index;
-
-                card.className = `organ-card paper-card p-2 sm:p-3 flex flex-col items-center justify-center cursor-pointer transition-all ${
-                    isSelected ? 'pulse-selected' : ''
-                } ${isUsed ? 'opacity-30 grayscale pointer-events-none' : 'hover:scale-105'}`;
-                card.style.backgroundColor = isUsed ? '#e9ecef' : meta.bgColor;
-
-                card.innerHTML = `
-                    <div class="text-3xl sm:text-4xl mb-1">${meta.icon}</div>
-                    <div class="font-black text-xs sm:text-sm" style="color: ${meta.textColor}">${meta.name}</div>
+            // 渲染右側器官庫存選單
+            ['lung', 'trachea', 'gill'].forEach(organKey => {
+                const count = collectedInventory[organKey];
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-xl border-2 cursor-pointer flex items-center justify-between transition-all ${
+                    count === 0 
+                        ? 'bg-gray-100 border-gray-300 opacity-40 cursor-not-allowed' 
+                        : selectedOrganType === organKey 
+                            ? 'bg-amber-200 border-orange-500 pulse-selected' 
+                            : 'bg-white border-amber-300 hover:border-amber-500'
+                }`;
+                div.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="text-2xl">${organKey === 'lung' ? '🫁' : organKey === 'trachea' ? '🌿' : '🫧'}</span>
+                        <span class="font-bold text-sm text-amber-950">${ORGAN_NAMES[organKey]}</span>
+                    </div>
+                    <span class="font-black text-orange-600 bg-amber-100 px-2 py-0.5 rounded-full text-xs">剩餘: ${count}</span>
                 `;
-
-                if (!isUsed) {
-                    card.onclick = () => selectOrgan(index);
+                if (count > 0) {
+                    div.onclick = () => selectOrgan(organKey);
                 }
-                organContainer.appendChild(card);
+                organsContainer.appendChild(div);
             });
+        }
 
-            const instr = document.getElementById('stage2Instruction');
-            if (selectedAnimalIndex !== null && selectedOrganIndex === null) {
-                instr.innerText = `👉 已選擇：${currentAnimals[selectedAnimalIndex].name}！請點擊下方的呼吸器官進行配對！`;
-            } else if (selectedAnimalIndex === null && selectedOrganIndex !== null) {
-                instr.innerText = `👉 已選擇器官裝備！請點擊上方的動物進行配對！`;
+        function selectAnimal(id) {
+            selectedAnimalId = (selectedAnimalId === id) ? null : id;
+            renderStage2();
+            tryMatchStage2();
+        }
+
+        function selectOrgan(type) {
+            if (!selectedAnimalId) {
+                playSound('error');
+                showToast('👉 請先點選左側需要治療的【生病動物】喔！');
+                return;
+            }
+            selectedOrganType = (selectedOrganType === type) ? null : type;
+            renderStage2();
+            tryMatchStage2();
+        }
+
+        function tryMatchStage2() {
+            if (!selectedAnimalId || !selectedOrganType) return;
+
+            const animal = stage2Animals.find(a => a.id === selectedAnimalId);
+
+            if (animal.organ === selectedOrganType) {
+                // 配對成功！
+                playSound('success');
+                animal.isCured = true;
+                collectedInventory[selectedOrganType]--;
+                curedAnimals.push(animal);
+
+                showToast(`✨ 太棒了！【${animal.name}】成功安裝了【${ORGAN_NAMES[selectedOrganType]}】！`);
+                selectedAnimalId = null;
+                selectedOrganType = null;
+
+                renderStage2();
+                checkStage2Progress();
             } else {
-                instr.innerText = `👇 請點擊選擇動物或器官進行醫療配對！`;
+                // 配對失敗
+                playSound('error');
+                showToast(`❌ 配對錯誤！${animal.name} 的器官需求不符。${animal.desc}`);
+                selectedOrganType = null;
+                renderStage2();
             }
         }
 
-        function selectAnimal(index) {
-            getAudioContext();
-            selectedAnimalIndex = (selectedAnimalIndex === index) ? null : index;
-            renderStage2();
-            checkAndExecuteMatch();
-        }
-
-        function selectOrgan(index) {
-            getAudioContext();
-            selectedOrganIndex = (selectedOrganIndex === index) ? null : index;
-            renderStage2();
-            checkAndExecuteMatch();
-        }
-
-        function checkAndExecuteMatch() {
-            if (selectedAnimalIndex !== null && selectedOrganIndex !== null) {
-                const targetAnimal = currentAnimals[selectedAnimalIndex];
-                const selectedOrgan = collectedInventory[selectedOrganIndex];
-
-                if (targetAnimal.organ === selectedOrgan.type) {
-                    playSuccessSound();
-                    targetAnimal.rescued = true;
-                    selectedOrgan.used = true;
-                    score += 20;
-                    rescuedCount++;
-
-                    showToast(`✅ 正確！${targetAnimal.name} 的呼吸器官正是【${ORGAN_META[selectedOrgan.type].name}】！`, false);
-
-                    document.getElementById('hudScore').innerText = score;
-                    document.getElementById('hudRescued').innerText = `${rescuedCount} / 5`;
-
-                    selectedAnimalIndex = null;
-                    selectedOrganIndex = null;
-                    renderStage2();
-
-                    if (rescuedCount === 5) {
-                        setTimeout(showSuccessModal, 600);
-                    }
-                } else {
-                    playErrorSound();
-                    showToast(`❌ 配對錯誤！${targetAnimal.name} 的器官不是【${ORGAN_META[selectedOrgan.type].name}】哦！`, true);
-                    
-                    const area = document.getElementById('matchingArea');
-                    area.classList.add('shake-animation');
-                    setTimeout(() => area.classList.remove('shake-animation'), 400);
-
-                    selectedAnimalIndex = null;
-                    selectedOrganIndex = null;
-                    renderStage2();
-                }
+        function checkStage2Progress() {
+            const remaining = stage2Animals.filter(a => !a.isCured).length;
+            if (remaining === 0) {
+                setTimeout(() => {
+                    playSound('success');
+                    showToast('🎉 第二階段完成！所有人順利康復，進入第三階段：送動物回家！');
+                    currentStage = 3;
+                    updateStageVisibility();
+                    renderStage3();
+                }, 1000);
             }
         }
 
-        function showSuccessModal() {
-            document.getElementById('finalScore').innerText = score + ' 分';
-            document.getElementById('resultModal').classList.remove('hidden');
-        }
-
-        function restartGame() {
-            document.getElementById('resultModal').classList.add('hidden');
-            startGame();
-        }
-
-        let qrcodeInstance = null;
-
-        function showQRCodeModal() {
-            getAudioContext();
-            const qrModal = document.getElementById('qrModal');
-            const qrContainer = document.getElementById('qrcode');
-            const qrUrlText = document.getElementById('qrUrlText');
+        // --- 第三階段：送動物回家 ---
+        function renderStage3() {
+            const container = document.getElementById('paired-animals-container');
+            container.innerHTML = '';
             
-            let currentUrl = window.location.href;
-            
-            // 如果網址過長（超過 800 字元），進行安全性處理避免 QRCode.js 產生溢位空白
-            if (currentUrl.length > 800) {
-                // 如果含有 data:text/html 或長 query，擷取有效前段或提示
-                if (currentUrl.startsWith('data:')) {
-                    currentUrl = window.location.origin || 'https://localhost';
-                }
+            curedAnimals.forEach(animal => {
+                const div = document.createElement('div');
+                div.className = `btn-hand p-2.5 bg-white rounded-xl cursor-pointer flex items-center space-x-1 ${
+                    selectedCuredAnimalId === animal.id ? 'bg-amber-300 border-orange-500 pulse-selected' : 'border-amber-300'
+                }`;
+                div.innerHTML = `<span class="text-2xl">${animal.icon}</span><span class="font-bold text-xs">${animal.name}</span>`;
+                div.onclick = () => {
+                    selectedCuredAnimalId = (selectedCuredAnimalId === animal.id) ? null : animal.id;
+                    renderStage3();
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function placeAnimalInHabitat(targetHabitat) {
+            if (!selectedCuredAnimalId) {
+                playSound('error');
+                showToast('👉 請先點選上方要送回家的小動物！');
+                return;
             }
 
-            qrUrlText.innerText = currentUrl;
+            const animalIndex = curedAnimals.findIndex(a => a.id === selectedCuredAnimalId);
+            if (animalIndex === -1) return;
 
-            // 清空舊的 QR Code
+            const animal = curedAnimals[animalIndex];
+
+            if (animal.habitat === targetHabitat) {
+                // 送對棲息地
+                playSound('success');
+                curedAnimals.splice(animalIndex, 1);
+                
+                const resContainer = targetHabitat === '水生' ? document.getElementById('ocean-residents') : document.getElementById('forest-residents');
+                const tag = document.createElement('div');
+                tag.className = 'bg-white/90 border border-amber-300 px-2.5 py-1 rounded-lg text-xs font-bold flex items-center space-x-1 shadow-sm';
+                tag.innerHTML = `<span>${animal.icon}</span><span>${animal.name}</span>`;
+                resContainer.appendChild(tag);
+
+                showToast(`🏡【${animal.name}】平安回到了${targetHabitat === '水生' ? '藍色大海' : '森林草地'}！`);
+                selectedCuredAnimalId = null;
+                renderStage3();
+
+                if (curedAnimals.length === 0) {
+                    setTimeout(() => {
+                        document.getElementById('victory-modal').classList.remove('hidden');
+                        playSound('success');
+                    }, 800);
+                }
+            } else {
+                // 棲息地不符
+                playSound('error');
+                showToast(`❌ 棲息地不符合喔！【${animal.name}】是${animal.habitat}生物！`);
+            }
+        }
+
+        // 取得純淨可存取的 URL，避免極長及沙盒參數量溢出
+        function getCleanGameURL() {
+            try {
+                const origin = window.location.origin;
+                const pathname = window.location.pathname;
+
+                if (origin && origin !== 'null' && !origin.startsWith('file')) {
+                    return origin + pathname;
+                }
+                return window.location.href.split('?')[0].split('#')[0];
+            } catch (e) {
+                return window.location.href;
+            }
+        }
+
+        function openQRModal() {
+            const modal = document.getElementById('qr-modal');
+            const qrContainer = document.getElementById('qrcode-container');
             qrContainer.innerHTML = '';
+            modal.classList.remove('hidden');
+
+            const targetUrl = getCleanGameURL();
 
             try {
-                // 使用 QRCode 產生器，調降容錯率提升長字串相容度
-                qrcodeInstance = new QRCode(qrContainer, {
-                    text: currentUrl,
-                    width: 170,
-                    height: 170,
-                    colorDark : "#2d241e",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.L
+                new QRCode(qrContainer, {
+                    text: targetUrl,
+                    width: 160,
+                    height: 160,
+                    colorDark: '#382d21',
+                    colorLight: '#ffffff',
+                    correctLevel: QRCode.CorrectLevel.L
                 });
             } catch (err) {
-                console.error("QRCode generation error:", err);
-                qrContainer.innerHTML = '<span class="text-xs text-red-600 font-bold p-2">連結過長無法生成條碼<br>請點選上方【複製】按鈕分享連結</span>';
+                qrContainer.innerHTML = `<p class="text-xs text-amber-900 font-bold p-2">請直接複製連結分享此遊戲！</p>`;
             }
-
-            qrModal.classList.remove('hidden');
         }
 
-        function copyGameUrl() {
-            const currentUrl = window.location.href;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(currentUrl).then(() => {
-                    showToast("📋 遊戲網址已複製到剪貼簿！", false);
+        function closeQRModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
+        }
+
+        function copyCurrentURL() {
+            const url = getCleanGameURL();
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(() => {
+                    showToast('📋 網址已成功複製到剪貼簿！');
                 }).catch(() => {
-                    fallbackCopy(currentUrl);
+                    fallbackCopyText(url);
                 });
             } else {
-                fallbackCopy(currentUrl);
+                fallbackCopyText(url);
             }
         }
 
-        function fallbackCopy(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
+        function fallbackCopyText(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
             try {
                 document.execCommand('copy');
-                showToast("📋 遊戲網址已複製到剪貼簿！", false);
+                showToast('📋 網址已成功複製！');
             } catch (err) {
-                showToast("❌ 複製失敗，請手動複製連結", true);
+                showToast('請手動複製網址分享！');
             }
-            document.body.removeChild(textarea);
+            document.body.removeChild(textArea);
         }
 
-        function closeQRCodeModal() {
-            document.getElementById('qrModal').classList.add('hidden');
+        // 洗牌工具函式
+        function shuffleArray(arr) {
+            return arr.sort(() => Math.random() - 0.5);
         }
     </script>
 </body>
