@@ -214,20 +214,58 @@
             </div>
         </div>
 
+        <!-- 第四階段：二氧化碳呼出量與濃度由多到少排序挑戰 -->
+        <div id="stage-4" class="hidden space-y-4">
+            <div class="bg-amber-100 p-3 rounded-xl border-2 border-amber-800 flex justify-between items-center">
+                <div>
+                    <h2 class="font-black text-lg text-amber-900">第四階段：二氧化碳排放量與濃度大挑戰</h2>
+                    <p class="text-xs md:text-sm text-amber-800 font-bold">請依「呼出的二氧化碳濃度與氣體總量」由【最多 ➔ 最少】依序點擊動物進行排列！</p>
+                </div>
+                <button onclick="resetStage4Sort()" class="btn-hand bg-amber-300 hover:bg-amber-400 text-amber-950 px-3 py-1.5 rounded-xl text-xs font-black shrink-0">
+                    🔄 重新排列
+                </button>
+            </div>
+
+            <!-- 排序作答區 (1 到 5 名) -->
+            <div class="bg-amber-50 p-3 rounded-xl border-2 border-amber-700">
+                <div class="flex justify-between items-center text-xs font-black text-amber-900 mb-2 px-1">
+                    <span>🔥 最多 / 濃度最高 (第 1 名)</span>
+                    <span>🍃 最少 / 濃度最低 (第 5 名)</span>
+                </div>
+                <div id="co2-slots-container" class="grid grid-cols-5 gap-2">
+                    <!-- 動態生成 5 個排序位置 -->
+                </div>
+            </div>
+
+            <!-- 待排序動物選項池 -->
+            <div class="bg-white p-4 rounded-xl border-2 border-amber-300">
+                <p class="text-xs font-bold text-amber-800 mb-3 text-center">👇 點擊下方動物放入順序框（可點擊上方格子取消選取）：</p>
+                <div id="co2-pool-container" class="flex flex-wrap gap-3 justify-center min-h-[76px] items-center">
+                    <!-- 動態生成待排序動物卡片 -->
+                </div>
+            </div>
+
+            <!-- 提交答案按鈕 -->
+            <div class="flex justify-center pt-1">
+                <button id="submit-co2-btn" onclick="checkStage4Answer()" class="btn-hand bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-black text-base disabled:opacity-50" disabled>
+                    ✅ 確認排序並提交
+                </button>
+            </div>
+        </div>
+
     </main>
 
     <!-- 勝利通關彈窗 Modal -->
     <div id="victory-modal" class="hidden fixed inset-0 z-50 modal-bg flex items-center justify-center p-4">
         <div class="paper-card bg-amber-50 p-6 max-w-md w-full text-center space-y-4">
             <span class="text-6xl floating-deco inline-block">🏆</span>
-            <h2 class="text-2xl font-black text-amber-900">太棒了！救援成功！</h2>
-            <p class="text-sm font-bold text-amber-800">你成功收集器官、配對醫療並把所有動物平安送回家！你是專業的【生物呼吸救援大師】！</p>
+            <h2 class="text-2xl font-black text-amber-900">太棒了！全部挑戰大成功！</h2>
+            <p class="text-sm font-bold text-amber-800">你不僅救回了所有動物，還精準掌握了呼吸器官與二氧化碳排放量的科學知識！</p>
             
             <div class="bg-white p-3 rounded-xl border border-amber-300 text-left text-xs space-y-1 font-bold text-amber-900">
                 <p>✅ 知識小複習：</p>
-                <p>• 魚類、蝦類等水生生物主要用<b>鰓</b>抽取水中氧氣。</p>
-                <p>• 昆蟲類（如蚱蜢、蜜蜂）使用<b>氣管系統</b>氣孔呼吸。</p>
-                <p>• 陸生脊椎動物（兔子、鳥類、人類）主要使用<b>肺臟</b>呼吸。</p>
+                <p>• <b>呼吸器官</b>：魚蝦用<b>鰓</b>、昆蟲用<b>氣管</b>、鳥類哺乳類用<b>肺臟</b>。</p>
+                <p>• <b>二氧化碳呼出量與濃度</b>：恆溫動物且體型較大者（如<b>小白兔、小麻雀</b>）代謝率高，呼出的 CO₂ 濃度與總量遠高於變溫水生動物與小型昆蟲！</p>
             </div>
 
             <div class="flex flex-col gap-2 pt-2">
@@ -251,6 +289,11 @@
                 <div id="qrcode-container" class="flex justify-center items-center min-h-[160px]"></div>
             </div>
 
+            <!-- 新增沙盒環境警告提示 -->
+            <div id="qr-sandbox-warning" class="hidden bg-red-100 text-red-700 text-xs font-bold p-2 rounded-lg border border-red-300">
+                ⚠️ 注意：目前處於預覽環境，暫時網址無法跨裝置開啟（手機會顯示空白）。請將此程式碼發布/上傳至網頁空間後再進行掃描。
+            </div>
+
             <p class="text-xs text-amber-800 font-bold">使用手機鏡頭掃描即可遊玩！</p>
             
             <div class="flex gap-2">
@@ -265,14 +308,14 @@
     </div>
 
     <script>
-        // --- 完整動物資料庫 ---
+        // --- 完整動物資料庫 (加入 co2Rank 數值：數值越大代表呼出二氧化碳濃度與總量越多) ---
         const ANIMAL_DATABASE = [
-            { id: 'fish', name: '小金魚', icon: '🐠', organ: 'gill', habitat: '水生', desc: '生活在水中，需要鰓吸收水中的氧氣。' },
-            { id: 'shrimp', name: '大龍蝦', icon: '🦞', organ: 'gill', habitat: '水生', desc: '甲殼類水生動物，靠鰓進行氣體交換。' },
-            { id: 'grasshopper', name: '小蚱蜢', icon: '🦗', organ: 'trachea', habitat: '陸生', desc: '昆蟲類，體表有氣孔並連接氣管系統。' },
-            { id: 'bee', name: '小蜜蜂', icon: '🐝', organ: 'trachea', habitat: '陸生', desc: '飛行的昆蟲，使用氣管分支輸送氧氣。' },
-            { id: 'rabbit', name: '小白兔', icon: '🐰', organ: 'lung', habitat: '陸生', desc: '哺乳類動物，使用肺臟呼吸空氣。' },
-            { id: 'bird', name: '小麻雀', icon: '🐦', organ: 'lung', habitat: '陸生', desc: '鳥類，擁有高效能的肺臟與氣囊。' }
+            { id: 'rabbit', name: '小白兔', icon: '🐰', organ: 'lung', habitat: '陸生', co2Rank: 6, desc: '哺乳類恆溫動物，體型較大且肺活量高，代謝旺盛，呼出的二氧化碳量與濃度最高。' },
+            { id: 'bird', name: '小麻雀', icon: '🐦', organ: 'lung', habitat: '陸生', co2Rank: 5, desc: '鳥類恆溫動物，飛行與心率極快，呼吸氣體交換率高，呼出二氧化碳濃度次高。' },
+            { id: 'shrimp', name: '大龍蝦', icon: '🦞', organ: 'gill', habitat: '水生', co2Rank: 4, desc: '較大型水生甲殼類，體積比小魚大，總呼吸代謝排放的二氧化碳量高於小型魚蟲。' },
+            { id: 'fish', name: '小金魚', icon: '🐠', organ: 'gill', habitat: '水生', co2Rank: 3, desc: '變溫水生動物，代謝率較陸生恆溫動物低，水中溶氧與排出二氧化碳濃度較低。' },
+            { id: 'grasshopper', name: '小蚱蜢', icon: '🦗', organ: 'trachea', habitat: '陸生', co2Rank: 2, desc: '小型昆蟲，利用氣管系統擴散氣體，體積小、總呼出二氧化碳量較少。' },
+            { id: 'bee', name: '小蜜蜂', icon: '🐝', organ: 'trachea', habitat: '陸生', co2Rank: 1, desc: '體型最小的昆蟲，單次呼吸排出的二氧化碳氣體總量最少。' }
         ];
 
         const ORGAN_NAMES = {
@@ -295,6 +338,10 @@
         // Stage 3 state
         let curedAnimals = [];
         let selectedCuredAnimalId = null;
+
+        // Stage 4 state (二氧化碳排序)
+        let stage4SortedList = [];
+        let stage4PoolList = [];
 
         // Stage 1 Canvas Bubbles
         let canvas, ctx;
@@ -375,6 +422,7 @@
             document.getElementById('stage-1').classList.toggle('hidden', currentStage !== 1);
             document.getElementById('stage-2').classList.toggle('hidden', currentStage !== 2);
             document.getElementById('stage-3').classList.toggle('hidden', currentStage !== 3);
+            document.getElementById('stage-4').classList.toggle('hidden', currentStage !== 4);
         }
 
         function showToast(msg) {
@@ -387,6 +435,76 @@
             }, 2500);
         }
 
+        function resizeCanvas() {
+            if (!canvas) return;
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+
+        function initStage1Bubbles() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            bubbles = [];
+            
+            // 確保一開始就生成四個包含三種不同器官的氣泡
+            const types = ['lung', 'trachea', 'gill'];
+            for (let i = 0; i < 4; i++) {
+                spawnBubble(types[i % 3]);
+            }
+            
+            animateBubbles();
+        }
+
+        function spawnBubble(type) {
+            bubbles.push({
+                x: Math.random() * (canvas.width - 60) + 30,
+                y: canvas.height + 40 + Math.random() * 100,
+                radius: 26,
+                speed: 1 + Math.random() * 1.5,
+                wobble: Math.random() * Math.PI * 2,
+                wobbleSpeed: 0.02 + Math.random() * 0.03,
+                type: type || ['lung', 'trachea', 'gill'][Math.floor(Math.random() * 3)]
+            });
+        }
+
+        function animateBubbles() {
+            if (currentStage !== 1) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < bubbles.length; i++) {
+                const b = bubbles[i];
+                b.y -= b.speed;
+                b.wobble += b.wobbleSpeed;
+                const currentX = b.x + Math.sin(b.wobble) * 15;
+
+                // 畫氣泡外觀
+                ctx.beginPath();
+                ctx.arc(currentX, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+                ctx.fill();
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.95)';
+                ctx.stroke();
+
+                // 畫氣泡內的器官圖示
+                ctx.font = '24px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const icon = b.type === 'lung' ? '🫁' : b.type === 'trachea' ? '🌿' : '🫧';
+                ctx.fillText(icon, currentX, b.y);
+
+                // 氣泡飄出頂部後回收到底部，並隨機更換種類確保畫面豐富
+                if (b.y < -40) {
+                    b.y = canvas.height + 40;
+                    b.x = Math.random() * (canvas.width - 60) + 30;
+                    const types = ['lung', 'trachea', 'gill'];
+                    b.type = types[Math.floor(Math.random() * types.length)];
+                }
+            }
+
+            animationFrameId = requestAnimationFrame(animateBubbles);
+        }
+
         function initCanvas() {
             canvas = document.getElementById('bubbleCanvas');
             ctx = canvas.getContext('2d');
@@ -394,80 +512,20 @@
             window.addEventListener('resize', resizeCanvas);
 
             canvas.addEventListener('click', handleCanvasClick);
+            // 新增：行動裝置觸控支援
+            canvas.addEventListener('touchstart', handleCanvasTouch, { passive: false });
         }
 
-        function resizeCanvas() {
-            if (!canvas) return;
-            const rect = canvas.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-        }
-
-        function initStage1Bubbles() {
-            bubbles = [];
-            // 畫面永遠固定呈現多樣的三種器官氣泡 (肺臟、氣管、鰓)
-            const allTypes = ['lung', 'trachea', 'gill', 'lung'];
-            
-            for (let i = 0; i < 4; i++) {
-                bubbles.push(createBubble(allTypes[i % allTypes.length]));
-            }
-
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            animateBubbles();
-        }
-
-        function createBubble(type) {
-            return {
-                x: Math.random() * (canvas.width - 60) + 30,
-                y: canvas.height + Math.random() * 100 + 20,
-                radius: 28 + Math.random() * 8,
-                speed: 1.2 + Math.random() * 1.3,
-                type: type,
-                wobble: Math.random() * Math.PI * 2,
-                wobbleSpeed: 0.03 + Math.random() * 0.02
-            };
-        }
-
-        function animateBubbles() {
+        function handleCanvasTouch(e) {
             if (currentStage !== 1) return;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const icons = { lung: '🫁', trachea: '🌿', gill: '🫧' };
-
-            bubbles.forEach((b) => {
-                b.y -= b.speed;
-                b.wobble += b.wobbleSpeed;
-                const currentX = b.x + Math.sin(b.wobble) * 15;
-
-                // 飄出頂部後自動重置回底部，保持流暢循環，絕不閃退或無故消失
-                if (b.y < -40) {
-                    b.y = canvas.height + 40;
-                    b.x = Math.random() * (canvas.width - 60) + 30;
-                }
-
-                // 畫氣泡外框與漸層
-                ctx.beginPath();
-                ctx.arc(currentX, b.y, b.radius, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-                ctx.fill();
-                ctx.lineWidth = 2.5;
-                ctx.strokeStyle = '#0284c7';
-                ctx.stroke();
-
-                // 氣泡亮光
-                ctx.beginPath();
-                ctx.arc(currentX - b.radius * 0.3, b.y - b.radius * 0.3, b.radius * 0.22, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-                ctx.fill();
-
-                // 繪製圖示
-                ctx.font = '22px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(icons[b.type], currentX, b.y);
-            });
-
-            animationFrameId = requestAnimationFrame(animateBubbles);
+            e.preventDefault(); // 阻止畫面滾動，讓點擊更精準
+            const rect = canvas.getBoundingClientRect();
+            for (let i = 0; i < e.changedTouches.length; i++) {
+                const touch = e.changedTouches[i];
+                const clickX = touch.clientX - rect.left;
+                const clickY = touch.clientY - rect.top;
+                checkBubbleHit(clickX, clickY);
+            }
         }
 
         function handleCanvasClick(e) {
@@ -475,13 +533,18 @@
             const rect = canvas.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
+            checkBubbleHit(clickX, clickY);
+        }
 
+        // 將碰撞偵測獨立出來，供 Click 與 Touch 共同使用
+        function checkBubbleHit(clickX, clickY) {
             for (let i = bubbles.length - 1; i >= 0; i--) {
                 const b = bubbles[i];
                 const currentX = b.x + Math.sin(b.wobble) * 15;
                 const dist = Math.hypot(clickX - currentX, clickY - b.y);
 
-                if (dist < b.radius + 10) {
+                // 稍微放大判定範圍 (+15)，對手機觸控更友善
+                if (dist < b.radius + 15) {
                     popBubble(i);
                     break;
                 }
@@ -700,8 +763,11 @@
 
                 if (curedAnimals.length === 0) {
                     setTimeout(() => {
-                        document.getElementById('victory-modal').classList.remove('hidden');
                         playSound('success');
+                        showToast('🎉 所有動物都回家了！進入最終挑戰：二氧化碳排放量排序！');
+                        currentStage = 4;
+                        updateStageVisibility();
+                        initStage4();
                     }, 800);
                 }
             } else {
@@ -711,16 +777,124 @@
             }
         }
 
+        // --- 第四階段：二氧化碳呼出量與濃度由多到少排序 ---
+        function initStage4() {
+            stage4SortedList = [];
+            stage4PoolList = shuffleArray([...selectedAnimals]);
+            renderStage4();
+        }
+
+        function resetStage4Sort() {
+            playSound('pop');
+            initStage4();
+        }
+
+        function renderStage4() {
+            const slotsContainer = document.getElementById('co2-slots-container');
+            const poolContainer = document.getElementById('co2-pool-container');
+            const submitBtn = document.getElementById('submit-co2-btn');
+
+            slotsContainer.innerHTML = '';
+            poolContainer.innerHTML = '';
+
+            // 渲染 5 個排序槽位 (由多到少)
+            for (let i = 0; i < 5; i++) {
+                const animal = stage4SortedList[i];
+                const slot = document.createElement('div');
+                if (animal) {
+                    slot.className = 'btn-hand bg-amber-200 border-orange-500 p-2 rounded-xl flex flex-col items-center justify-center cursor-pointer min-h-[82px]';
+                    slot.innerHTML = `
+                        <span class="text-[10px] font-black bg-orange-500 text-white px-1.5 rounded-full mb-1">第 ${i + 1} 名</span>
+                        <span class="text-2xl">${animal.icon}</span>
+                        <span class="font-bold text-xs text-amber-950 mt-0.5">${animal.name}</span>
+                    `;
+                    slot.onclick = () => removeFromStage4Slot(i);
+                } else {
+                    slot.className = 'bg-white/70 border-2 border-dashed border-amber-400 p-2 rounded-xl flex flex-col items-center justify-center min-h-[82px] text-amber-400';
+                    slot.innerHTML = `
+                        <span class="text-xs font-black">第 ${i + 1} 名</span>
+                        <span class="text-[11px] mt-1">${i === 0 ? '最多' : i === 4 ? '最少' : '待填入'}</span>
+                    `;
+                }
+                slotsContainer.appendChild(slot);
+            }
+
+            // 渲染下方待選動物池
+            stage4PoolList.forEach((animal, idx) => {
+                const card = document.createElement('div');
+                card.className = 'btn-hand bg-white hover:bg-amber-100 border-amber-400 px-3 py-2 rounded-xl flex items-center space-x-1.5 cursor-pointer';
+                card.innerHTML = `
+                    <span class="text-2xl">${animal.icon}</span>
+                    <span class="font-bold text-xs text-amber-950">${animal.name}</span>
+                `;
+                card.onclick = () => addToStage4Slot(idx);
+                poolContainer.appendChild(card);
+            });
+
+            // 排滿 5 隻才能送出驗證
+            submitBtn.disabled = stage4SortedList.length < 5;
+        }
+
+        function addToStage4Slot(poolIndex) {
+            if (stage4SortedList.length >= 5) return;
+            playSound('pop');
+            const [picked] = stage4PoolList.splice(poolIndex, 1);
+            stage4SortedList.push(picked);
+            renderStage4();
+        }
+
+        function removeFromStage4Slot(slotIndex) {
+            playSound('pop');
+            const [removed] = stage4SortedList.splice(slotIndex, 1);
+            stage4PoolList.push(removed);
+            renderStage4();
+        }
+
+        function checkStage4Answer() {
+            if (stage4SortedList.length < 5) return;
+
+            // 檢查是否嚴格由高到低排列 (co2Rank 遞減)
+            let isCorrect = true;
+            for (let i = 0; i < stage4SortedList.length - 1; i++) {
+                if (stage4SortedList[i].co2Rank < stage4SortedList[i + 1].co2Rank) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+
+            if (isCorrect) {
+                playSound('success');
+                showToast('🎉 完全正確！二氧化碳排放量與濃度排序完全精準！');
+                setTimeout(() => {
+                    document.getElementById('victory-modal').classList.remove('hidden');
+                    playSound('success');
+                }, 700);
+            } else {
+                playSound('error');
+                const slotsContainer = document.getElementById('co2-slots-container');
+                slotsContainer.classList.add('shake-animation');
+                setTimeout(() => slotsContainer.classList.remove('shake-animation'), 450);
+                showToast('❌ 順序還差一點喔！提示：恆溫動物(兔、鳥)代謝快、體型大，呼出 CO₂ 最多；小型昆蟲最少！');
+            }
+        }
+
         // 取得純淨可存取的 URL，避免極長及沙盒參數量溢出
         function getCleanGameURL() {
             try {
+                const href = window.location.href;
+                
+                // 若為預覽沙盒環境的本地網址，回傳佔位符號避免 QRCode 當機
+                if (href.startsWith('about:') || href.startsWith('blob:') || href.startsWith('data:')) {
+                    return "https://example.com/sandbox-preview";
+                }
+
                 const origin = window.location.origin;
                 const pathname = window.location.pathname;
 
                 if (origin && origin !== 'null' && !origin.startsWith('file')) {
                     return origin + pathname;
                 }
-                return window.location.href.split('?')[0].split('#')[0];
+                return href.split('?')[0].split('#')[0];
             } catch (e) {
                 return window.location.href;
             }
@@ -729,10 +903,17 @@
         function openQRModal() {
             const modal = document.getElementById('qr-modal');
             const qrContainer = document.getElementById('qrcode-container');
+            const warning = document.getElementById('qr-sandbox-warning');
             qrContainer.innerHTML = '';
             modal.classList.remove('hidden');
 
             const targetUrl = getCleanGameURL();
+            
+            // 檢測是否在預覽環境，若是則顯示紅色警告
+            const isSandbox = window.location.href.startsWith('about:') || window.location.href.startsWith('blob:') || window.location.origin === 'null';
+            if (warning) {
+                warning.classList.toggle('hidden', !isSandbox);
+            }
 
             try {
                 new QRCode(qrContainer, {
